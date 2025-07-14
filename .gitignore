@@ -1,0 +1,38 @@
+# Ignorar archivos temporales y backups
+*.pyc
+*.pyo
+*~
+*.swp
+
+# Ignorar copias de archivos
+*copia*.py
+
+# Ignorar archivos de logs y datos
+*.log
+*.zip
+*.txt
+*.csv
+*.json
+
+# Excepto los CSV y JSON que sí queremos seguir
+!productos.csv
+!productos.json
+!gtins.csv
+
+# Ignorar carpetas que no hacen parte del repositorio
+alkosto_logs/
+datos/
+resultados/
+scrap/
+__pycache__/
+chromedriver-linux64/
+
+# Ignorar archivos de prueba
+test.py
+chat_id.py
+
+# Ignorar scripts manuales o no utilizados
+scraper_*.py
+alkosto_gtin*.py
+urls.txt
+
