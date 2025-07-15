@@ -766,5 +766,37 @@
     "fecha": "2025-07-15",
     "hora": "05:42:16",
     "url": "https://www.alkosto.com/p/194253387459"
+  },
+  {
+    "gtin": "4711636030427",
+    "nombre": "Computador Portátil Gamer ASUS TUF F 16\" Pulgadas FX607VJ - Intel Core 5 - RAM 16GB - Disco SSD 512GB - Gris",
+    "precio": 3599000,
+    "fecha": "2025-07-15",
+    "hora": "06:11:48",
+    "url": "https://www.alkosto.com/p/4711636030427"
+  },
+  {
+    "gtin": "4711387567074",
+    "nombre": "Computador Portátil Gamer ASUS TUF Gaming 15.6\" Pulgadas FX507ZC4 - Intel Core i5 - RAM 8GB - Disco SSD 1 TB SSD - Gris",
+    "precio": 3099000,
+    "fecha": "2025-07-15",
+    "hora": "06:11:49",
+    "url": "https://www.alkosto.com/p/4711387567074"
+  },
+  {
+    "gtin": "4711636036580",
+    "nombre": "Computador Portátil Gamer ASUS TUF F 16\" Pulgadas FX607VJ - Intel Core 5 - RAM 8GB - Disco SSD 512GB - Gris",
+    "precio": 3199000,
+    "fecha": "2025-07-15",
+    "hora": "06:11:50",
+    "url": "https://www.alkosto.com/p/4711636036580"
+  },
+  {
+    "gtin": "4711387903117",
+    "nombre": "Computador Portátil Gamer ASUS 16\" Pulgadas V3607VU - Intel Core 5 - RAM 16 GB - Disco SSD 512GB - Negro",
+    "precio": 4099000,
+    "fecha": "2025-07-15",
+    "hora": "06:11:51",
+    "url": "https://www.alkosto.com/p/4711387903117"
   }
 ]
