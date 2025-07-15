@@ -19,7 +19,7 @@ productos_disponibles = df["nombre"].dropna().unique()
 productos_seleccionados = st.multiselect(
     "🛍 Selecciona uno o varios productos:",
     options=productos_disponibles,
-    default=productos_disponibles[:1],
+    default=productos_disponibles[72:74],
 )
 
 # --- Filtro por rango de fechas ---
