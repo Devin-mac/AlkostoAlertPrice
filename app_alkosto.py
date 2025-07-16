@@ -1,62 +1,79 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
 import plotly.express as px
-from datetime import datetime
 
-st.set_page_config(page_title="Seguimiento de precios Alkosto", layout="wide")
-st.title("📊 Evolución de precios - Alkosto")
+# Archivos
+CSV_HISTORICO = "productos.csv"
+GTINS_FILE = "gtins.csv"
 
-# Cargar datos
-@st.cache_data
-def cargar_datos():
-    df = pd.read_csv("productos.csv", parse_dates=["fecha"])
-    return df
+st.set_page_config(page_title="Alkosto Alert Price", layout="wide")
+st.title("🛒 Evolución de precios - Alkosto")
 
-df = cargar_datos()
+# Leer datos históricos
+try:
+    df = pd.read_csv(CSV_HISTORICO, dtype=str)
+    df["precio"] = df["precio"].astype(float)
+    df["fecha"] = pd.to_datetime(df["fecha"])
+except Exception as e:
+    st.error(f"Error al cargar {CSV_HISTORICO}: {e}")
+    st.stop()
 
-# --- Filtro por producto(s) ---
-productos_disponibles = df["nombre"].dropna().unique()
-productos_seleccionados = st.multiselect(
-    "🛍 Selecciona uno o varios productos:",
-    options=productos_disponibles,
-    default=productos_disponibles[72:74],
-)
+# Leer nombres desde gtins.csv
+try:
+    df_gtins = pd.read_csv(GTINS_FILE, dtype=str)
+    df_gtins = df_gtins[df_gtins["nombre"].notna() & (df_gtins["nombre"] != "")]
+except Exception as e:
+    st.error(f"Error al cargar {GTINS_FILE}: {e}")
+    st.stop()
 
-# --- Filtro por rango de fechas ---
-min_fecha = df["fecha"].min().date()
-max_fecha = df["fecha"].max().date()
-col1, col2 = st.columns(2)
-with col1:
-    fecha_inicio = st.date_input("📅 Fecha de inicio:", min_value=min_fecha, max_value=max_fecha, value=min_fecha)
-with col2:
-    fecha_fin = st.date_input("📅 Fecha de fin:", min_value=min_fecha, max_value=max_fecha, value=max_fecha)
+# Diccionarios para acceso
+nombre_a_gtin = dict(zip(df_gtins["nombre"], df_gtins["gtin"]))
+gtin_a_nombre = dict(zip(df_gtins["gtin"], df_gtins["nombre"]))
 
-# --- Filtrar dataframe ---
-df_filtrado = df[
-    (df["nombre"].isin(productos_seleccionados)) &
-    (df["fecha"].dt.date >= fecha_inicio) &
-    (df["fecha"].dt.date <= fecha_fin)
-]
+# Sidebar: selección de productos
+nombres = list(nombre_a_gtin.keys())
+seleccionados = st.sidebar.multiselect("🛍️ Selecciona uno o más productos", nombres, default=nombres[:1])
 
-# --- Mostrar alerta visual si hay baja de precio ---
+# Sidebar: filtro de fechas
+fechas_disponibles = df["fecha"].sort_values().unique()
+fecha_min, fecha_max = pd.to_datetime(fechas_disponibles[0]), pd.to_datetime(fechas_disponibles[-1])
+rango_fechas = st.sidebar.date_input("📅 Filtrar por fechas", [fecha_min, fecha_max], min_value=fecha_min, max_value=fecha_max)
+
+# --- Alertas visuales de baja de precio ---
 st.subheader("🔔 Alertas de baja de precio")
-for producto in productos_seleccionados:
-    precios = df_filtrado[df_filtrado["nombre"] == producto].sort_values("fecha")["precio"]
+for nombre in seleccionados:
+    gtin = nombre_a_gtin[nombre]
+    df_p = df[df["gtin"] == gtin]
+    precios = df_p["precio"].astype(float)
     if len(precios) >= 2 and precios.iloc[-1] < precios.max():
-        st.warning(f"⬇️ {producto}: bajó a ${precios.iloc[-1]:,}")
+        st.warning(f"⬇️ {nombre}: bajó a ${precios.iloc[-1]:,.0f}")
 
 # --- Gráfico de evolución de precios ---
-if not df_filtrado.empty:
-    fig = px.line(
-        df_filtrado,
-        x="fecha",
-        y="precio",
-        color="nombre",
-        markers=True,
-        title="Evolución del precio en el tiempo"
+if seleccionados:
+    fig = px.area()
+    for nombre in seleccionados:
+        gtin = nombre_a_gtin[nombre]
+        df_p = df[df["gtin"] == gtin].copy()
+        df_p = df_p[(df_p["fecha"] >= pd.to_datetime(rango_fechas[0])) & (df_p["fecha"] <= pd.to_datetime(rango_fechas[1]))]
+        if not df_p.empty:
+            fig.add_scatter(
+                x=df_p["fecha"], y=df_p["precio"],
+                mode="lines+markers", name=nombre,
+                fill="tozeroy"
+            )
+        else:
+            st.warning(f"⚠️ No hay datos para {nombre} en el rango seleccionado.")
+
+    fig.update_layout(
+        title="📈 Evolución de precios (gráfico de áreas)",
+        xaxis_title="Fecha",
+        yaxis_title="Precio (COP)",
+        hovermode="x unified",
+        height=500
     )
     st.plotly_chart(fig, use_container_width=True)
 else:
-    st.info("No hay datos para el rango de fechas o productos seleccionados.")
+    st.info("Selecciona al menos un producto para ver la gráfica.")
+
 
 
