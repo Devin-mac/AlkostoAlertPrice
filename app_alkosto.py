@@ -30,9 +30,21 @@ except Exception as e:
 nombre_a_gtin = dict(zip(df_gtins["nombre"], df_gtins["gtin"]))
 gtin_a_nombre = dict(zip(df_gtins["gtin"], df_gtins["nombre"]))
 
-# Sidebar: selección de productos
-nombres = list(nombre_a_gtin.keys())
-seleccionados = st.sidebar.multiselect("🛍️ Selecciona uno o más productos", nombres, default=nombres[:1])
+# Sidebar: buscador de productos
+texto_busqueda = st.sidebar.text_input("🔍 Buscar productos por nombre (ej. 'Galaxy')", "")
+
+# Filtrar productos según el texto ingresado
+if texto_busqueda:
+    nombres_filtrados = [n for n in nombre_a_gtin.keys() if texto_busqueda.lower() in n.lower()]
+else:
+    nombres_filtrados = list(nombre_a_gtin.keys())
+
+seleccionados = st.sidebar.multiselect(
+    "Selecciona uno o más productos",
+    nombres_filtrados,
+    default=nombres_filtrados[:1]
+)
+
 
 # Sidebar: filtro de fechas
 fechas_disponibles = df["fecha"].sort_values().unique()
